@@ -88,7 +88,7 @@ def restart(client, message):
 def send_start(client: pyrogram.client.Client, message: pyrogram.types.messages_and_media.message.Message):
     bot.send_message(message.chat.id, "Yes I am Active")
 
-@bot.on_message(filters.text & filters.chat(-1001915000752))
+@bot.on_message(filters.text & filters.chat(-1002120238669))
 def save(client: pyrogram.client.Client, message: pyrogram.types.messages_and_media.message.Message):
 	print(message.text)
 
