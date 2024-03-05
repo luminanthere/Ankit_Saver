@@ -206,12 +206,11 @@ def handle_private(message: pyrogram.types.messages_and_media.message.Message, c
                 os.rename(file, modified_filename)
 
             # Remove specific words from the caption
-            words_to_remove_from_caption = ["Mr Cracker", "The One", "{KUNAL}", "@ImTgLoki", "𝚂𝚝𝚞𝚋𝚋𝚘𝚛𝚗", "TheOne", "Gareeb"]  # Add the words you want to remove from the caption
+            words_to_remove_from_caption = ["Mr Cracker", "The One", "{KUNAL}", "@ImTgLoki", "𝚂𝚝𝚞𝚋𝚋𝚘𝚛𝚗", "TheOne", "Gareeb", "The One"]  # Add the words you want to remove from the caption
             caption = msg.caption if msg.caption else ""
             for word in words_to_remove_from_caption:
                 caption = caption.replace(word, "ʟʊʍɨռǟռȶ")
 
-            caption += "\n𝗗𝗼𝘄𝗻𝗹𝗼𝗮𝗱𝗲𝗱 𝗕𝘆 : ʟʊʍɨռǟռȶ✨"  # Add extra lines to the caption
             if "Document" == msg_type:
                 bot.send_document(message.chat.id, modified_filename, thumb=thumb, caption=caption, caption_entities=msg.caption_entities, reply_to_message_id=message.id, progress=progress, progress_args=[message, "up"])
             elif "Video" == msg_type:
