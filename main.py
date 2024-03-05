@@ -198,13 +198,17 @@ def handle_private(message: pyrogram.types.messages_and_media.message.Message, c
             modified_filename = f"{filename}ʟʊʍɨռǟռȶ{file_extension}"
 
             # Remove specific words from the file name
-            words_to_remove = ["Mr_Cracker", "The_One", "{KUNAL}", "@ImTgLoki", "𝚂𝚝𝚞𝚋𝚋𝚘𝚛𝚗", "TheOne", "Gareeb"]  # Add the words you want to remove
+            words_to_remove = ["Mr Cracker", "The_One", "{KUNAL}", "@ImTgLoki", "𝚂𝚝𝚞𝚋𝚋𝚘𝚛𝚗", "TheOne", "Gareeb", "The One"]  # Add the words you want to remove
             for word in words_to_remove:
                 modified_filename = modified_filename.replace(word, "")
 
             if os.path.exists(file):  # Check if the file exists before renaming
                 os.rename(file, modified_filename)
-            caption = f"{msg.caption}\n𝗗𝗼𝘄𝗻𝗹𝗼𝗮𝗱𝗲𝗱 𝗕𝘆 : ʟʊʍɨռǟռȶ✨"  # Add extra lines to the caption
+            # Remove specific words from the caption
+            words_to_remove_from_caption = ["𝚂𝚝𝚞𝚋𝚋𝚘𝚛𝚗", "{KUNAL}", "Kunal", "KUNAL❤️", "Mr_Cracker", "The_One", "The One", "Mr Cracker" ]  # Add the words you want to remove from the caption
+            caption = msg.caption if msg.caption else ""
+            for word in words_to_remove_from_caption:
+                caption = caption.replace(word, "ʟʊʍɨռǟռȶ")
             bot.send_document(message.chat.id, modified_filename, thumb=thumb, caption=caption, caption_entities=msg.caption_entities, reply_to_message_id=message.id, progress=progress, progress_args=[message, "up"])
 
         elif "Video" == msg_type:
@@ -219,9 +223,35 @@ def handle_private(message: pyrogram.types.messages_and_media.message.Message, c
 
             if os.path.exists(file):  # Check if the file exists before renaming
                 os.rename(file, modified_filename)
-            caption = f"{msg.caption}\n𝗗𝗼𝘄𝗻𝗹𝗼𝗮𝗱𝗲𝗱 𝗕𝘆 : ʟʊʍɨռǟռȶ✨"  # Add extra lines to the caption
+            # Remove specific words from the caption
+            words_to_remove_from_caption = ["𝚂𝚝𝚞𝚋𝚋𝚘𝚛𝚗", "{KUNAL}", "Kunal", "KUNAL❤️", "Mr Cracker", "The One" ]  # Add the words you want to remove from the caption
+            caption = msg.caption if msg.caption else ""
+            for word in words_to_remove_from_caption:
+                caption = caption.replace(word, "ʟʊʍɨռǟռȶ")
             bot.send_video(message.chat.id, modified_filename, duration=msg.video.duration, width=msg.video.width, height=msg.video.height, thumb=thumb, caption=caption, caption_entities=msg.caption_entities, reply_to_message_id=message.id, progress=progress, progress_args=[message, "up"])
 
+        # Other elif conditions for different message types...
+	elif "Animation" == msg_type:
+            bot.send_animation(message.chat.id, file, reply_to_message_id=message.id)
+
+        elif "Sticker" == msg_type:
+            bot.send_sticker(message.chat.id, file, reply_to_message_id=message.id)
+
+        elif "Voice" == msg_type:
+            bot.send_voice(message.chat.id, file, caption=msg.caption, thumb=thumb, caption_entities=msg.caption_entities, reply_to_message_id=message.id, progress=progress, progress_args=[message, "up"])
+
+        elif "Audio" == msg_type:
+            try:
+                thumb = acc.download_media(msg.audio.thumbs[0].file_id)
+            except:
+                thumb = None
+
+            bot.send_audio(message.chat.id, file, caption=msg.caption, caption_entities=msg.caption_entities, reply_to_message_id=message.id, progress=progress, progress_args=[message, "up"])
+            if thumb != None:
+                os.remove(thumb)
+
+        elif "Photo" == msg_type:
+            bot.send_photo(message.chat.id, file, caption=msg.caption, caption_entities=msg.caption_entities, reply_to_message_id=message.id)
         # Other elif conditions for different message types...
 
         # Cleanup
