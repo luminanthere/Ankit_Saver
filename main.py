@@ -187,33 +187,6 @@ def handle_private(message: pyrogram.types.messages_and_media.message.Message, c
         dosta = threading.Thread(target=lambda: downstatus(f'{message.id}downstatus.txt', smsg), daemon=True)
         dosta.start()
         file = acc.download_media(msg, progress=progress, progress_args=[message, "down"])
-        os.remove(f'{message.id}downstatus.txt')  # Remove the download status file
-
-        upsta = threading.Thread(target=lambda: upstatus(f'{message.id}upstatus.txt', smsg), daemon=True)
-        upsta.start()
-
-        # Function to handle private messages
-def handle_private(message: pyrogram.types.messages_and_media.message.Message, chatid: int, msgid: int):
-    try:
-        msg: pyrogram.types.messages_and_media.message.Message = acc.get_messages(chatid, msgid)
-        msg_type = get_message_type(msg)
-
-        thumb = "https://graph.org/file/818aa312b35052a5c4d74.jpg"
-        if thumb.startswith("http://") or thumb.startswith("https://"):
-            # Download the image file using wget
-            getstatusoutput(f"wget '{thumb}' -O 'thumb.jpg'")
-            thumb = "thumb.jpg"
-
-        modified_filename = None  # Initialize modified_filename variable
-
-        if "Text" == msg_type:
-            bot.send_message(message.chat.id, msg.text, entities=msg.entities, reply_to_message_id=message.id)
-            return
-
-        smsg = bot.send_message(message.chat.id, '__Downloading__', reply_to_message_id=message.id)
-        dosta = threading.Thread(target=lambda: downstatus(f'{message.id}downstatus.txt', smsg), daemon=True)
-        dosta.start()
-        file = acc.download_media(msg, progress=progress, progress_args=[message, "down"])
         os.remove(f'{message.id}downstatus.txt')
 
         upsta = threading.Thread(target=lambda: upstatus(f'{message.id}upstatus.txt', smsg), daemon=True)
