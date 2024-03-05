@@ -9,7 +9,6 @@ import json
 from pyrogram.errors.exceptions.bad_request_400 import MessageEmpty
 from pyrogram.types import Message
 from subprocess import getstatusoutput
-from telebot import types
 import re
 
 # Load configuration from config.json
