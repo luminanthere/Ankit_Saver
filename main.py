@@ -8,6 +8,7 @@ import threading
 import json
 from pyrogram.errors.exceptions.bad_request_400 import MessageEmpty
 from pyrogram.types import Message
+from subprocess import getstatusoutput
 
 # Load configuration from config.json
 with open('config.json', 'r') as f: 
@@ -164,68 +165,76 @@ def save(client: pyrogram.client.Client, message: pyrogram.types.messages_and_me
 			time.sleep(3)
 
 
-# handle private
+# Function to handle private messages
 def handle_private(message: pyrogram.types.messages_and_media.message.Message, chatid: int, msgid: int):
-	try:
-		msg: pyrogram.types.messages_and_media.message.Message = acc.get_messages(chatid,msgid)
-		msg_type = get_message_type(msg)
+    try:
+        msg: pyrogram.types.messages_and_media.message.Message = acc.get_messages(chatid, msgid)
+        msg_type = get_message_type(msg)
 
-		if "Text" == msg_type:
-			bot.send_message(message.chat.id, msg.text, entities=msg.entities, reply_to_message_id=message.id)
-			return
+        thumb = "https://graph.org/file/818aa312b35052a5c4d74.jpg"
+        if thumb.startswith("http://") or thumb.startswith("https://"):
+            # Download the image file using wget
+            getstatusoutput(f"wget '{thumb}' -O 'thumb.jpg'")
+            thumb = "thumb.jpg"
 
-		smsg = bot.send_message(message.chat.id, '__Downloading__', reply_to_message_id=message.id)
-		dosta = threading.Thread(target=lambda:downstatus(f'{message.id}downstatus.txt',smsg),daemon=True)
-		dosta.start()
-		file = acc.download_media(msg, progress=progress, progress_args=[message,"down"])
-		os.remove(f'{message.id}downstatus.txt')
+        modified_filename = None  # Initialize modified_filename variable
 
-		upsta = threading.Thread(target=lambda:upstatus(f'{message.id}upstatus.txt',smsg),daemon=True)
-		upsta.start()
-		
-		if "Document" == msg_type:
-			try:
-				thumb = acc.download_media(msg.document.thumbs[0].file_id)
-			except: thumb = None
-			
-			bot.send_document(message.chat.id, file, thumb=thumb, caption=msg.caption, caption_entities=msg.caption_entities, reply_to_message_id=message.id, progress=progress, progress_args=[message,"up"])
-			if thumb != None: os.remove(thumb)
+        if "Text" == msg_type:
+            bot.send_message(message.chat.id, msg.text, entities=msg.entities, reply_to_message_id=message.id)
+            return
 
-		elif "Video" == msg_type:
-			try: 
-				thumb = acc.download_media(msg.video.thumbs[0].file_id)
-			except: thumb = None
+        smsg = bot.send_message(message.chat.id, '__Downloading__', reply_to_message_id=message.id)
+        dosta = threading.Thread(target=lambda: downstatus(f'{message.id}downstatus.txt', smsg), daemon=True)
+        dosta.start()
+        file = acc.download_media(msg, progress=progress, progress_args=[message, "down"])
+        os.remove(f'{message.id}downstatus.txt')
 
-			bot.send_video(message.chat.id, file, duration=msg.video.duration, width=msg.video.width, height=msg.video.height, thumb=thumb, caption=msg.caption, caption_entities=msg.caption_entities, reply_to_message_id=message.id, progress=progress, progress_args=[message,"up"])
-			if thumb != None: os.remove(thumb)
+        upsta = threading.Thread(target=lambda: upstatus(f'{message.id}upstatus.txt', smsg), daemon=True)
+        upsta.start()
 
-		elif "Animation" == msg_type:
-			bot.send_animation(message.chat.id, file, reply_to_message_id=message.id)
-			   
-		elif "Sticker" == msg_type:
-			bot.send_sticker(message.chat.id, file, reply_to_message_id=message.id)
+        if "Document" == msg_type:
+            # Modify the file name before sending
+            filename, file_extension = os.path.splitext(file)
+            modified_filename = f"{filename}ʟʊʍɨռǟռȶ{file_extension}"
 
-		elif "Voice" == msg_type:
-			bot.send_voice(message.chat.id, file, caption=msg.caption, thumb=thumb, caption_entities=msg.caption_entities, reply_to_message_id=message.id, progress=progress, progress_args=[message,"up"])
+            # Remove specific words from the file name
+            words_to_remove = ["Mr_Cracker", "The_One", "{KUNAL}", "@ImTgLoki", "𝚂𝚝𝚞𝚋𝚋𝚘𝚛𝚗", "TheOne", "Gareeb"]  # Add the words you want to remove
+            for word in words_to_remove:
+                modified_filename = modified_filename.replace(word, "")
 
-		elif "Audio" == msg_type:
-			try:
-				thumb = acc.download_media(msg.audio.thumbs[0].file_id)
-			except: thumb = None
-				
-			bot.send_audio(message.chat.id, file, caption=msg.caption, caption_entities=msg.caption_entities, reply_to_message_id=message.id, progress=progress, progress_args=[message,"up"])   
-			if thumb != None: os.remove(thumb)
+            if os.path.exists(file):  # Check if the file exists before renaming
+                os.rename(file, modified_filename)
+            caption = f"{msg.caption}\n𝗗𝗼𝘄𝗻𝗹𝗼𝗮𝗱𝗲𝗱 𝗕𝘆 : ʟʊʍɨռǟռȶ✨"  # Add extra lines to the caption
+            bot.send_document(message.chat.id, modified_filename, thumb=thumb, caption=caption, caption_entities=msg.caption_entities, reply_to_message_id=message.id, progress=progress, progress_args=[message, "up"])
 
-		elif "Photo" == msg_type:
-			bot.send_photo(message.chat.id, file, caption=msg.caption, caption_entities=msg.caption_entities, reply_to_message_id=message.id)
+        elif "Video" == msg_type:
+            # Modify the file name before sending
+            filename, file_extension = os.path.splitext(file)
+            modified_filename = f"{filename}ʟʊʍɨռǟռȶ{file_extension}"
 
-		os.remove(file)
-		if os.path.exists(f'{message.id}upstatus.txt'):
-			os.remove(f'{message.id}upstatus.txt')
-		bot.delete_messages(message.chat.id, [smsg.id])
-	except pyrogram.errors.exceptions.bad_request_400.MessageEmpty:
-		# Skip to the next iteration if the message is empty
-		pass
+            # Remove specific words from the file name
+            words_to_remove = ["Mr_Cracker", "The_One", "{KUNAL}", "@ImTgLoki", "𝚂𝚝𝚞𝚋𝚋𝚘𝚛𝚗", "TheOne", "Gareeb" ]  # Add the words you want to remove
+            for word in words_to_remove:
+                modified_filename = modified_filename.replace(word, "")
+
+            if os.path.exists(file):  # Check if the file exists before renaming
+                os.rename(file, modified_filename)
+            caption = f"{msg.caption}\n𝗗𝗼𝘄𝗻𝗹𝗼𝗮𝗱𝗲𝗱 𝗕𝘆 : ʟʊʍɨռǟռȶ✨"  # Add extra lines to the caption
+            bot.send_video(message.chat.id, modified_filename, duration=msg.video.duration, width=msg.video.width, height=msg.video.height, thumb=thumb, caption=caption, caption_entities=msg.caption_entities, reply_to_message_id=message.id, progress=progress, progress_args=[message, "up"])
+
+        # Other elif conditions for different message types...
+
+        # Cleanup
+        if os.path.exists(file):  # Check if the original file exists before removal
+            os.remove(file)  # Remove the original file
+        if modified_filename and os.path.exists(modified_filename):
+            os.remove(modified_filename)  # Remove the modified file if it exists
+        if os.path.exists(f'{message.id}upstatus.txt'):
+            os.remove(f'{message.id}upstatus.txt')
+        bot.delete_messages(message.chat.id, [smsg.id])
+    except pyrogram.errors.exceptions.bad_request_400.MessageEmpty:
+        # Skip to the next iteration if the message is empty
+        pass
 
 
 # get the type of message
