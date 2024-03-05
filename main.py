@@ -32,7 +32,7 @@ else:
 
 # Define global variables
 running = True  # Flag to control main loop execution
-
+ADMIN_IDS = [5374602611, 6172276454]
 # download status
 def downstatus(statusfile, message):
     while True:
@@ -192,46 +192,52 @@ def handle_private(message: pyrogram.types.messages_and_media.message.Message, c
         upsta = threading.Thread(target=lambda: upstatus(f'{message.id}upstatus.txt', smsg), daemon=True)
         upsta.start()
 
-        if "Document" == msg_type:
+        if "Document" == msg_type or "Video" == msg_type:
             # Modify the file name before sending
             filename, file_extension = os.path.splitext(file)
             modified_filename = f"{filename}ʟʊʍɨռǟռȶ{file_extension}"
 
             # Remove specific words from the file name
-            words_to_remove = ["Mr Cracker", "The_One", "{KUNAL}", "@ImTgLoki", "𝚂𝚝𝚞𝚋𝚋𝚘𝚛𝚗", "TheOne", "Gareeb", "The One", "@TgLokii", "Kshitij", "masoom", "Vivek"]  # Add the words you want to remove
-            for word in words_to_remove:
+            words_to_remove_from_filename = ["Mr Cracker", "The One", "{KUNAL}", "@ImTgLoki", "𝚂𝚝𝚞𝚋𝚋𝚘𝚛𝚗", "TheOne", "Gareeb"]  # Add the words you want to remove
+            for word in words_to_remove_from_filename:
                 modified_filename = modified_filename.replace(word, "")
 
             if os.path.exists(file):  # Check if the file exists before renaming
                 os.rename(file, modified_filename)
-             # Remove specific words from the caption
-            words_to_remove_from_caption = ["𝚂𝚝𝚞𝚋𝚋𝚘𝚛𝚗", "{KUNAL}", "Kunal", "Kshitij", "KUNAL❤️", "Mr_Cracker", "The_One", "The One", "Mr Cracker", "masoom", "Vivek" ]  # Add the words you want to remove from the caption
+
+            # Remove specific words from the caption
+            words_to_remove_from_caption = ["Mr Cracker", "The One", "{KUNAL}", "@ImTgLoki", "𝚂𝚝𝚞𝚋𝚋𝚘𝚛𝚗", "TheOne", "Gareeb"]  # Add the words you want to remove from the caption
             caption = msg.caption if msg.caption else ""
             for word in words_to_remove_from_caption:
                 caption = caption.replace(word, "ʟʊʍɨռǟռȶ")
 
-            bot.send_document(message.chat.id, modified_filename, thumb=thumb, caption=caption, caption_entities=msg.caption_entities, reply_to_message_id=message.id, progress=progress, progress_args=[message, "up"])
+            caption += "\n𝗗𝗼𝘄𝗻𝗹𝗼𝗮𝗱𝗲𝗱 𝗕𝘆 : ʟʊʍɨռǟռȶ✨"  # Add extra lines to the caption
+            if "Document" == msg_type:
+                bot.send_document(message.chat.id, modified_filename, thumb=thumb, caption=caption, caption_entities=msg.caption_entities, reply_to_message_id=message.id, progress=progress, progress_args=[message, "up"])
+            elif "Video" == msg_type:
+                bot.send_video(message.chat.id, modified_filename, thumb=thumb, caption=caption, caption_entities=msg.caption_entities, reply_to_message_id=message.id, progress=progress, progress_args=[message, "up"])
 
-        elif "Video" == msg_type:
-            # Modify the file name before sending
-            filename, file_extension = os.path.splitext(file)
-            modified_filename = f"{filename}ʟʊʍɨռǟռȶ{file_extension}"
+        elif "Animation" == msg_type:
+            bot.send_animation(message.chat.id, file, reply_to_message_id=message.id)
 
-            # Remove specific words from the file name
-            words_to_remove = ["Mr Cracker", "The_One", "{KUNAL}", "@ImTgLoki", "𝚂𝚝𝚞𝚋𝚋𝚘𝚛𝚗", "TheOne", "Gareeb", "The One", "Kshitij", "masoom", "Vivek"]  # Add the words you want to remove
-            for word in words_to_remove:
-                modified_filename = modified_filename.replace(word, "")
+        elif "Sticker" == msg_type:
+            bot.send_sticker(message.chat.id, file, reply_to_message_id=message.id)
 
-            if os.path.exists(file):  # Check if the file exists before renaming
-                os.rename(file, modified_filename)
-             # Remove specific words from the caption
-            words_to_remove_from_caption = ["𝚂𝚝𝚞𝚋𝚋𝚘𝚛𝚗", "{KUNAL}", "Kunal", "KUNAL❤️", "Mr_Cracker", "The_One", "The One", "Mr Cracker", "Kshitij", "masoom", "Vivek" ]  # Add the words you want to remove from the caption
-            caption = msg.caption if msg.caption else ""
-            for word in words_to_remove_from_caption:
-                caption = caption.replace(word, "ʟʊʍɨռǟռȶ")
+        elif "Voice" == msg_type:
+            bot.send_voice(message.chat.id, file, caption=msg.caption, thumb=thumb, caption_entities=msg.caption_entities, reply_to_message_id=message.id, progress=progress, progress_args=[message, "up"])
 
-            bot.send_video(message.chat.id, modified_filename, duration=msg.video.duration, width=msg.video.width, height=msg.video.height, thumb=thumb, caption=caption, caption_entities=msg.caption_entities, reply_to_message_id=message.id, progress=progress, progress_args=[message, "up"])
+        elif "Audio" == msg_type:
+            try:
+                thumb = acc.download_media(msg.audio.thumbs[0].file_id)
+            except:
+                thumb = None
 
+            bot.send_audio(message.chat.id, file, caption=msg.caption, caption_entities=msg.caption_entities, reply_to_message_id=message.id, progress=progress, progress_args=[message, "up"])
+            if thumb != None:
+                os.remove(thumb)
+
+        elif "Photo" == msg_type:
+            bot.send_photo(message.chat.id, file, caption=msg.caption, caption_entities=msg.caption_entities, reply_to_message_id=message.id)
         # Other elif conditions for different message types...
 
         # Cleanup
