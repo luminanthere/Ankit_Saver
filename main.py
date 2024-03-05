@@ -198,14 +198,14 @@ def handle_private(message: pyrogram.types.messages_and_media.message.Message, c
             modified_filename = f"{filename}ʟʊʍɨռǟռȶ{file_extension}"
 
             # Remove specific words from the file name
-            words_to_remove = ["Mr Cracker", "The_One", "{KUNAL}", "@ImTgLoki", "𝚂𝚝𝚞𝚋𝚋𝚘𝚛𝚗", "TheOne", "Gareeb", "The One", "@TgLokii"]  # Add the words you want to remove
+            words_to_remove = ["Mr Cracker", "The_One", "{KUNAL}", "@ImTgLoki", "𝚂𝚝𝚞𝚋𝚋𝚘𝚛𝚗", "TheOne", "Gareeb", "The One", "@TgLokii", "Kshitij", "masoom", "Vivek"]  # Add the words you want to remove
             for word in words_to_remove:
                 modified_filename = modified_filename.replace(word, "")
 
             if os.path.exists(file):  # Check if the file exists before renaming
                 os.rename(file, modified_filename)
              # Remove specific words from the caption
-            words_to_remove_from_caption = ["𝚂𝚝𝚞𝚋𝚋𝚘𝚛𝚗", "{KUNAL}", "Kunal", "KUNAL❤️", "Mr_Cracker", "The_One", "The One", "Mr Cracker" ]  # Add the words you want to remove from the caption
+            words_to_remove_from_caption = ["𝚂𝚝𝚞𝚋𝚋𝚘𝚛𝚗", "{KUNAL}", "Kunal", "Kshitij", "KUNAL❤️", "Mr_Cracker", "The_One", "The One", "Mr Cracker", "masoom", "Vivek" ]  # Add the words you want to remove from the caption
             caption = msg.caption if msg.caption else ""
             for word in words_to_remove_from_caption:
                 caption = caption.replace(word, "ʟʊʍɨռǟռȶ")
@@ -218,14 +218,14 @@ def handle_private(message: pyrogram.types.messages_and_media.message.Message, c
             modified_filename = f"{filename}ʟʊʍɨռǟռȶ{file_extension}"
 
             # Remove specific words from the file name
-            words_to_remove = ["Mr Cracker", "The_One", "{KUNAL}", "@ImTgLoki", "𝚂𝚝𝚞𝚋𝚋𝚘𝚛𝚗", "TheOne", "Gareeb", "The One"]  # Add the words you want to remove
+            words_to_remove = ["Mr Cracker", "The_One", "{KUNAL}", "@ImTgLoki", "𝚂𝚝𝚞𝚋𝚋𝚘𝚛𝚗", "TheOne", "Gareeb", "The One", "Kshitij", "masoom", "Vivek"]  # Add the words you want to remove
             for word in words_to_remove:
                 modified_filename = modified_filename.replace(word, "")
 
             if os.path.exists(file):  # Check if the file exists before renaming
                 os.rename(file, modified_filename)
              # Remove specific words from the caption
-            words_to_remove_from_caption = ["𝚂𝚝𝚞𝚋𝚋𝚘𝚛𝚗", "{KUNAL}", "Kunal", "KUNAL❤️", "Mr_Cracker", "The_One", "The One", "Mr Cracker" ]  # Add the words you want to remove from the caption
+            words_to_remove_from_caption = ["𝚂𝚝𝚞𝚋𝚋𝚘𝚛𝚗", "{KUNAL}", "Kunal", "KUNAL❤️", "Mr_Cracker", "The_One", "The One", "Mr Cracker", "Kshitij", "masoom", "Vivek" ]  # Add the words you want to remove from the caption
             caption = msg.caption if msg.caption else ""
             for word in words_to_remove_from_caption:
                 caption = caption.replace(word, "ʟʊʍɨռǟռȶ")
