@@ -9,6 +9,8 @@ import json
 from pyrogram.errors.exceptions.bad_request_400 import MessageEmpty
 from pyrogram.types import Message
 from subprocess import getstatusoutput
+from telebot import types
+import re
 
 # Load configuration from config.json
 with open('config.json', 'r') as f: 
@@ -165,7 +167,6 @@ def save(client: pyrogram.client.Client, message: pyrogram.types.messages_and_me
 			time.sleep(3)
 
 
-# Function to handle private messages
 def handle_private(message: pyrogram.types.messages_and_media.message.Message, chatid: int, msgid: int):
     try:
         msg: pyrogram.types.messages_and_media.message.Message = acc.get_messages(chatid, msgid)
@@ -198,18 +199,20 @@ def handle_private(message: pyrogram.types.messages_and_media.message.Message, c
             modified_filename = f"{filename}ʟʊʍɨռǟռȶ{file_extension}"
 
             # Remove specific words from the file name
-            words_to_remove = ["Mr Cracker", "The_One", "{KUNAL}", "@ImTgLoki", "@TgLokii", "𝚂𝚝𝚞𝚋𝚋𝚘𝚛𝚗", "TheOne", "Gareeb"]  # Add the words you want to remove
+            words_to_remove = ["Mr Cracker", "The One", "{KUNAL}", "@ImTgLoki", "𝚂𝚝𝚞𝚋𝚋𝚘𝚛𝚗", "TheOne", "Gareeb", "The_One", "@TgLokii"]  # Add the words you want to remove
             for word in words_to_remove:
-                modified_filename = modified_filename.replace(word, "")
+                modified_filename = modified_filename.replace(word, " ")
 
             if os.path.exists(file):  # Check if the file exists before renaming
                 os.rename(file, modified_filename)
+                
             # Remove specific words from the caption
-            words_to_remove_from_caption = ["Mr Cracker", "The_One", "{KUNAL}", "@ImTgLoki", "𝚂𝚝𝚞𝚋𝚋𝚘𝚛𝚗", "TheOne", "Gareeb", "The One"]  # Add the words you want to remove from the caption
+            words_to_remove_from_caption = ["Mr Cracker", "The One", "{KUNAL}", "@ImTgLoki", "𝚂𝚝𝚞𝚋𝚋𝚘𝚛𝚗", "TheOne", "Gareeb", "The_One"]  # Add the words you want to remove from the caption
             caption = msg.caption if msg.caption else ""
             for word in words_to_remove_from_caption:
-                caption = caption.replace(word, "ʟʊʍɨռǟռȶ")
-            caption = f"{msg.caption}\n𝗗𝗼𝘄𝗻𝗹𝗼𝗮𝗱𝗲𝗱 𝗕𝘆 : ʟʊʍɨռǟռȶ✨"  # Add extra lines to the caption
+                caption = re.sub(r'\b{}\b'.format(re.escape(word)), "ʟʊʍɨռǟռȶ", caption)
+
+            caption += "\n𝗗𝗼𝘄𝗻𝗹𝗼𝗮𝗱𝗲𝗱 𝗕𝘆 : ʟʊʍɨռǟռȶ✨"  # Add extra lines to the caption
             bot.send_document(message.chat.id, modified_filename, thumb=thumb, caption=caption, caption_entities=msg.caption_entities, reply_to_message_id=message.id, progress=progress, progress_args=[message, "up"])
 
         elif "Video" == msg_type:
@@ -218,19 +221,20 @@ def handle_private(message: pyrogram.types.messages_and_media.message.Message, c
             modified_filename = f"{filename}ʟʊʍɨռǟռȶ{file_extension}"
 
             # Remove specific words from the file name
-            words_to_remove = ["Mr_Cracker", "The_One", "{KUNAL}", "@ImTgLoki", "𝚂𝚝𝚞𝚋𝚋𝚘𝚛𝚗", "TheOne", "Gareeb" ]  # Add the words you want to remove
+            words_to_remove = ["Mr Cracker", "The_One", "{KUNAL}", "@ImTgLoki", "𝚂𝚝𝚞𝚋𝚋𝚘𝚛𝚗", "TheOne", "Gareeb", "The One" ]  # Add the words you want to remove
             for word in words_to_remove:
                 modified_filename = modified_filename.replace(word, "")
 
             if os.path.exists(file):  # Check if the file exists before renaming
                 os.rename(file, modified_filename)
+                
             # Remove specific words from the caption
-            words_to_remove_from_caption = ["Mr Cracker", "The_One", "{KUNAL}", "@ImTgLoki", "𝚂𝚝𝚞𝚋𝚋𝚘𝚛𝚗", "TheOne", "Gareeb", "The One"]  # Add the words you want to remove from the caption
+            words_to_remove_from_caption = ["Mr Cracker", "The One", "{KUNAL}", "@ImTgLoki", "𝚂𝚝𝚞𝚋𝚋𝚘𝚛𝚗", "TheOne", "Gareeb", "The_One"]  # Add the words you want to remove from the caption
             caption = msg.caption if msg.caption else ""
             for word in words_to_remove_from_caption:
-                caption = caption.replace(word, "ʟʊʍɨռǟռȶ")
+                caption = re.sub(r'\b{}\b'.format(re.escape(word)), "ʟʊʍɨռǟռȶ", caption)
             
-            caption = f"{msg.caption}\n𝗗𝗼𝘄𝗻𝗹𝗼𝗮𝗱𝗲𝗱 𝗕𝘆 : ʟʊʍɨռǟռȶ✨"  # Add extra lines to the caption
+            caption += "\n𝗗𝗼𝘄𝗻𝗹𝗼𝗮𝗱𝗲𝗱 𝗕𝘆 : ʟʊʍɨռǟռȶ✨"  # Add extra lines to the caption
             bot.send_video(message.chat.id, modified_filename, duration=msg.video.duration, width=msg.video.width, height=msg.video.height, thumb=thumb, caption=caption, caption_entities=msg.caption_entities, reply_to_message_id=message.id, progress=progress, progress_args=[message, "up"])
 
         elif "Animation" == msg_type:
