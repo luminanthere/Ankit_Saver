@@ -231,7 +231,7 @@ def handle_private(message: pyrogram.types.messages_and_media.message.Message, c
             bot.send_video(message.chat.id, modified_filename, duration=msg.video.duration, width=msg.video.width, height=msg.video.height, thumb=thumb, caption=caption, caption_entities=msg.caption_entities, reply_to_message_id=message.id, progress=progress, progress_args=[message, "up"])
 
         # Other elif conditions for different message types...
-	elif "Animation" == msg_type:
+        elif "Animation" == msg_type:
             bot.send_animation(message.chat.id, file, reply_to_message_id=message.id)
 
         elif "Sticker" == msg_type:
