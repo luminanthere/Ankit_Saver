@@ -187,7 +187,7 @@ def handle_private(message: pyrogram.types.messages_and_media.message.Message, c
         dosta = threading.Thread(target=lambda: downstatus(f'{message.id}downstatus.txt', smsg), daemon=True)
         dosta.start()
         file = acc.download_media(msg, progress=progress, progress_args=[message, "down"])
-        os.remove(f'{message.id}downstatus.txt')
+        os.remove(f'{message.id}downstatus.txt')  # Remove the download status file
 
         upsta = threading.Thread(target=lambda: upstatus(f'{message.id}upstatus.txt', smsg), daemon=True)
         upsta.start()
@@ -204,11 +204,13 @@ def handle_private(message: pyrogram.types.messages_and_media.message.Message, c
 
             if os.path.exists(file):  # Check if the file exists before renaming
                 os.rename(file, modified_filename)
+
             # Remove specific words from the caption
             words_to_remove_from_caption = ["𝚂𝚝𝚞𝚋𝚋𝚘𝚛𝚗", "{KUNAL}", "Kunal", "KUNAL❤️", "Mr_Cracker", "The_One", "The One", "Mr Cracker" ]  # Add the words you want to remove from the caption
             caption = msg.caption if msg.caption else ""
             for word in words_to_remove_from_caption:
                 caption = caption.replace(word, "ʟʊʍɨռǟռȶ")
+
             bot.send_document(message.chat.id, modified_filename, thumb=thumb, caption=caption, caption_entities=msg.caption_entities, reply_to_message_id=message.id, progress=progress, progress_args=[message, "up"])
 
         elif "Video" == msg_type:
@@ -223,14 +225,17 @@ def handle_private(message: pyrogram.types.messages_and_media.message.Message, c
 
             if os.path.exists(file):  # Check if the file exists before renaming
                 os.rename(file, modified_filename)
+
             # Remove specific words from the caption
             words_to_remove_from_caption = ["𝚂𝚝𝚞𝚋𝚋𝚘𝚛𝚗", "{KUNAL}", "Kunal", "KUNAL❤️", "Mr Cracker", "The One" ]  # Add the words you want to remove from the caption
             caption = msg.caption if msg.caption else ""
             for word in words_to_remove_from_caption:
                 caption = caption.replace(word, "ʟʊʍɨռǟռȶ")
+
             bot.send_video(message.chat.id, modified_filename, duration=msg.video.duration, width=msg.video.width, height=msg.video.height, thumb=thumb, caption=caption, caption_entities=msg.caption_entities, reply_to_message_id=message.id, progress=progress, progress_args=[message, "up"])
 
         # Other elif conditions for different message types...
+
         elif "Animation" == msg_type:
             bot.send_animation(message.chat.id, file, reply_to_message_id=message.id)
 
