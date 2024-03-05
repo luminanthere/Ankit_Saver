@@ -210,16 +210,14 @@ def handle_private(message: pyrogram.types.messages_and_media.message.Message, c
         for word in words_to_remove_from_caption:
             caption = caption.replace(word, "ʟʊʍɨռǟռȶ")
 
-        caption_entities = msg.caption_entities if msg.caption_entities else []  # Ensure entities are not None
-
         if "Document" == msg_type:
-            bot.send_document(message.chat.id, modified_filename, thumb=thumb, caption=caption, caption_entities=caption_entities, reply_to_message_id=message.id, progress=progress, progress_args=[message, "up"])
+            bot.send_document(message.chat.id, modified_filename, thumb=thumb, caption=caption, reply_to_message_id=message.id, progress=progress, progress_args=[message, "up"])
         elif "Video" == msg_type:
-            bot.send_video(message.chat.id, modified_filename, duration=msg.video.duration, width=msg.video.width, height=msg.video.height, thumb=thumb, caption=caption, caption_entities=caption_entities, reply_to_message_id=message.id, progress=progress, progress_args=[message, "up"])
+            bot.send_video(message.chat.id, modified_filename, duration=msg.video.duration, width=msg.video.width, height=msg.video.height, thumb=thumb, caption=caption, reply_to_message_id=message.id, progress=progress, progress_args=[message, "up"])
         elif "Audio" == msg_type:
-            bot.send_audio(message.chat.id, modified_filename, duration=msg.audio.duration, performer=msg.audio.performer, title=msg.audio.title, thumb=thumb, caption=caption, caption_entities=caption_entities, reply_to_message_id=message.id, progress=progress, progress_args=[message, "up"])
+            bot.send_audio(message.chat.id, modified_filename, duration=msg.audio.duration, performer=msg.audio.performer, title=msg.audio.title, thumb=thumb, caption=caption, reply_to_message_id=message.id, progress=progress, progress_args=[message, "up"])
         elif "Photo" == msg_type:
-            bot.send_photo(message.chat.id, modified_filename, thumb=thumb, caption=caption, caption_entities=caption_entities, reply_to_message_id=message.id, progress=progress, progress_args=[message, "up"])
+            bot.send_photo(message.chat.id, modified_filename, thumb=thumb, caption=caption, reply_to_message_id=message.id, progress=progress, progress_args=[message, "up"])
         # Add more elif conditions for other message types here...
 
         # Cleanup
