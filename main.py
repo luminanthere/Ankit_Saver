@@ -32,7 +32,7 @@ else:
 
 # Define global variables
 running = True  # Flag to control main loop execution
-
+ADMIN_IDS = [5374602611, 6172276454]
 # download status
 def downstatus(statusfile, message):
     while True:
@@ -198,7 +198,7 @@ def handle_private(message: pyrogram.types.messages_and_media.message.Message, c
             modified_filename = f"{filename}ʟʊʍɨռǟռȶ{file_extension}"
 
             # Remove specific words from the file name
-            words_to_remove = ["Mr_Cracker", "The_One", "{KUNAL}", "@ImTgLoki", "𝚂𝚝𝚞𝚋𝚋𝚘𝚛𝚗", "TheOne", "Gareeb"]  # Add the words you want to remove
+            words_to_remove = ["Mr Cracker", "The_One", "{KUNAL}", "@ImTgLoki", "@TgLokii", "𝚂𝚝𝚞𝚋𝚋𝚘𝚛𝚗", "TheOne", "Gareeb"]  # Add the words you want to remove
             for word in words_to_remove:
                 modified_filename = modified_filename.replace(word, "")
 
