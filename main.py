@@ -33,10 +33,6 @@ else:
 # Define global variables
 running = True  # Flag to control main loop execution
 ADMIN_IDS = [5374602611, 6172276454]
-# Define a lock to ensure thread-safe access to shared resources
-lock = threading.Lock()
-# Define a variable to track the last time a request was made
-last_request_time = time.time()
 
 # download status
 def downstatus(statusfile, message):
@@ -173,13 +169,6 @@ def save(client: pyrogram.client.Client, message: pyrogram.types.messages_and_me
 # Function to handle private messages
 def handle_private(message: pyrogram.types.messages_and_media.message.Message, chatid: int, msgid: int):
     try:
-        # Implement rate limiting
-        current_time = time.time()
-        elapsed_time = current_time - last_request_time
-        if elapsed_time < 1:  # Adjust the interval as needed (1 request per second)
-            time.sleep(1 - elapsed_time)  # Wait to ensure at least 1 second between requests
-        last_request_time = time.time()
-
         msg: pyrogram.types.messages_and_media.message.Message = acc.get_messages(chatid, msgid)
         msg_type = get_message_type(msg)
 
