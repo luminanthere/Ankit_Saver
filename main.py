@@ -206,8 +206,7 @@ def handle_private(message: pyrogram.types.messages_and_media.message.Message, c
             os.rename(file, modified_filename)
         
         # Remove specific words from the caption
-        words_to_remove_from_caption = ["𝚂𝚝𝚞𝚋𝚋𝚘𝚛𝚗", "{KUNAL}", "Kunal", "KUNAL❤️", "Mr_Cracker", "The_One", "The One", "Mr Cracker", "𝐑𝐄𝐗𝐎𝐃𝐀𝐒 🇮🇳
-@RolexEmpire", "Ƭʜᴇ-Ꭷɴᴇ  ✿" ]  # Add the words you want to remove from the caption
+        words_to_remove_from_caption = ["𝚂𝚝𝚞𝚋𝚋𝚘𝚛𝚗", "{KUNAL}", "Kunal", "KUNAL❤️", "Mr_Cracker", "The_One", "The One", "Mr Cracker", "𝐑𝐄𝐗𝐎𝐃𝐀𝐒 🇮🇳", "@RolexEmpire", "Ƭʜᴇ-Ꭷɴᴇ  ✿" ]  # Add the words you want to remove from the caption
         caption = msg.caption if msg.caption else ""
         for word in words_to_remove_from_caption:
             caption = caption.replace(word, "ʟʊʍɨռǟռȶ")
