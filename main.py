@@ -33,6 +33,8 @@ else:
 # Define global variables
 running = True  # Flag to control main loop execution
 ADMIN_IDS = [5374602611, 6172276454]
+words_to_remove_from_filename = []
+given_thumbnail = "not_set"
 
 # download status
 def downstatus(statusfile, message):
@@ -90,91 +92,119 @@ def restart(client, message):
 def send_start(client: pyrogram.client.Client, message: pyrogram.types.messages_and_media.message.Message):
     bot.send_message(message.chat.id, "Yes I am Active")
 
-@bot.on_message(filters.text & filters.chat(-1002120238669))
-def save(client: pyrogram.client.Client, message: pyrogram.types.messages_and_media.message.Message):
-	print(message.text)
+@bot.on_message(filters.text)
+def save(client: pyrogram.Client, message: pyrogram.types.Message):
+    global given_thumbnail, words_to_remove_from_filename
+    print(message.text)
 
-	# joining chats
-	if "https://t.me/+" in message.text or "https://t.me/joinchat/" in message.text:
+    # Check if text contains words to remove from filename
+    if message.text.startswith("[") and message.text.endswith("]"):
+        words_to_remove_from_filename = message.text[1:-1].split(",")
+        words_to_remove_from_filename = [word.strip() for word in words_to_remove_from_filename]
+        # Send a message indicating the set words
+        bot.send_message(message.chat.id, "You have set these words to be removed from the filename and Caption.")
 
-		if acc is None:
-			bot.send_message(message.chat.id,f"**String Session is not Set**", reply_to_message_id=message.id)
-			return
+    # joining chats
+    if "https://t.me/+" in message.text or "https://t.me/joinchat/" in message.text:
 
-		try:
-			try: acc.join_chat(message.text)
-			except Exception as e: 
-				bot.send_message(message.chat.id,f"**Error** : __{e}__", reply_to_message_id=message.id)
-				return
-			bot.send_message(message.chat.id,"**Chat Joined**", reply_to_message_id=message.id)
-		except UserAlreadyParticipant:
-			bot.send_message(message.chat.id,"**Chat alredy Joined**", reply_to_message_id=message.id)
-		except InviteHashExpired:
-			bot.send_message(message.chat.id,"**Invalid Link**", reply_to_message_id=message.id)
+        if acc is None:
+            bot.send_message(message.chat.id, f"**String Session is not Set**", reply_to_message_id=message.id)
+            return
 
-	# getting message
-	elif "https://t.me/" in message.text:
+        try:
+            try: 
+                acc.join_chat(message.text)
+            except Exception as e: 
+                bot.send_message(message.chat.id, f"**Error** : __{e}__", reply_to_message_id=message.id)
+                return
+            bot.send_message(message.chat.id, "**Chat Joined**", reply_to_message_id=message.id)
+        except UserAlreadyParticipant:
+            bot.send_message(message.chat.id, "**Chat alredy Joined**", reply_to_message_id=message.id)
+        except InviteHashExpired:
+            bot.send_message(message.chat.id, "**Invalid Link**", reply_to_message_id=message.id)
 
-		datas = message.text.split("/")
-		temp = datas[-1].replace("?single","").split("-")
-		fromID = int(temp[0].strip())
-		try: toID = int(temp[1].strip())
-		except: toID = fromID
+    # getting message
+    elif "https://t.me/" in message.text:
 
-		for msgid in range(fromID, toID+1):
+        datas = message.text.split("/")
+        temp = datas[-1].replace("?single", "").split("-")
+        fromID = int(temp[0].strip())
+        try: 
+            toID = int(temp[1].strip())
+        except: 
+            toID = fromID
 
-			# private
-			if "https://t.me/c/" in message.text:
-				chatid = int("-100" + datas[4])
-				
-				if acc is None:
-					bot.send_message(message.chat.id,f"**String Session is not Set**", reply_to_message_id=message.id)
-					return
-				
-				handle_private(message,chatid,msgid)
-				# try: handle_private(message,chatid,msgid)
-				# except Exception as e: bot.send_message(message.chat.id,f"**Error** : __{e}__", reply_to_message_id=message.id)
-			
-			# bot
-			elif "https://t.me/b/" in message.text:
-				username = datas[4]
-				
-				if acc is None:
-					bot.send_message(message.chat.id,f"**String Session is not Set**", reply_to_message_id=message.id)
-					return
-				try: handle_private(message,username,msgid)
-				except Exception as e: bot.send_message(message.chat.id,f"**Error** : __{e}__", reply_to_message_id=message.id)
+        for msgid in range(fromID, toID+1):
 
-			# public
-			else:
-				username = datas[3]
+            # private
+            if "https://t.me/c/" in message.text:
+                chatid = int("-100" + datas[4])
 
-				try: msg  = bot.get_messages(username,msgid)
-				except UsernameNotOccupied: 
-					bot.send_message(message.chat.id,f"**The username is not occupied by anyone**", reply_to_message_id=message.id)
-					return
+                if acc is None:
+                    bot.send_message(message.chat.id, f"**String Session is not Set**", reply_to_message_id=message.id)
+                    return
 
-				try: bot.copy_message(message.chat.id, msg.chat.id, msg.id,reply_to_message_id=message.id)
-				except:
-					if acc is None:
-						bot.send_message(message.chat.id,f"**String Session is not Set**", reply_to_message_id=message.id)
-						return
-					try: handle_private(message,username,msgid)
-					except Exception as e: bot.send_message(message.chat.id,f"**Error** : __{e}__", reply_to_message_id=message.id)
+                handle_private(message, chatid, msgid)
+                # try: handle_private(message,chatid,msgid)
+                # except Exception as e: bot.send_message(message.chat.id,f"**Error** : __{e}__", reply_to_message_id=message.id)
 
-			# wait time
-			time.sleep(3)
+            # bot
+            elif "https://t.me/b/" in message.text:
+                username = datas[4]
 
+                if acc is None:
+                    bot.send_message(message.chat.id, f"**String Session is not Set**", reply_to_message_id=message.id)
+                    return
+                try: 
+                    handle_private(message, username, msgid)
+                except Exception as e: 
+                    bot.send_message(message.chat.id, f"**Error** : __{e}__", reply_to_message_id=message.id)
 
-# Function to handle private messages
+            # public
+            else:
+                username = datas[3]
+
+                try: 
+                    msg  = bot.get_messages(username, msgid)
+                except UsernameNotOccupied: 
+                    bot.send_message(message.chat.id, f"**The username is not occupied by anyone**", reply_to_message_id=message.id)
+                    return
+
+                try: 
+                    bot.copy_message(message.chat.id, msg.chat.id, msg.id, reply_to_message_id=message.id)
+                except:
+                    if acc is None:
+                        bot.send_message(message.chat.id, f"**String Session is not Set**", reply_to_message_id=message.id)
+                        return
+                    try: 
+                        handle_private(message, username, msgid)
+                    except Exception as e: 
+                        bot.send_message(message.chat.id, f"**Error** : __{e}__", reply_to_message_id=message.id)
+
+            # wait time
+            time.sleep(3)
+
+    if "https://graph.org" in message.text:
+        set_thumb = message.text
+        if set_thumb.startswith("http://") or set_thumb.startswith("https://"):
+            # Download the image file using wget
+            getstatusoutput(f"wget '{set_thumb}' -O 'set_thumb.jpg'")
+            given_thumbnail = "set_thumb.jpg"
+            # Send a message confirming thumbnail set successfully
+            bot.send_message(message.chat.id, "Thumbnail has been set successfully.")
+    else:
+        given_thumbnail = "not_set"
+
 def handle_private(message: pyrogram.types.messages_and_media.message.Message, chatid: int, msgid: int):
+    global given_thumbnail, words_to_remove_from_filename
     try:
         msg: pyrogram.types.messages_and_media.message.Message = acc.get_messages(chatid, msgid)
         msg_type = get_message_type(msg)
 
-        thumb = "https://graph.org/file/818aa312b35052a5c4d74.jpg"
-        if thumb.startswith("http://") or thumb.startswith("https://"):
-            # Download the image file using wget
+        if given_thumbnail != "not_set":
+            thumb = given_thumbnail
+        else:
+            thumb = "https://graph.org/file/818aa312b35052a5c4d74.jpg"
             getstatusoutput(f"wget '{thumb}' -O 'thumb.jpg'")
             thumb = "thumb.jpg"
 
@@ -198,15 +228,14 @@ def handle_private(message: pyrogram.types.messages_and_media.message.Message, c
         modified_filename = f"{filename}ʟʊʍɨռǟռȶ{file_extension}"
 
         # Remove specific words from the file name
-        words_to_remove = ["Mr Cracker", "The_One", "{KUNAL}", "@ImTgLoki", "𝚂𝚝𝚞𝚋𝚋𝚘𝚛𝚗", "TheOne", "Gareeb", "The One", "REXODAS", "Ƭʜᴇ-Ꭷɴᴇ  ✿"]  # Add the words you want to remove
+        words_to_remove = words_to_remove_from_filename  # Add the words you want to remove
         for word in words_to_remove:
             modified_filename = modified_filename.replace(word, "")
 
-        if os.path.exists(file):  # Check if the file exists before renaming
-            os.rename(file, modified_filename)
-        
+        os.rename(file, modified_filename)
+	
         # Remove specific words from the caption
-        words_to_remove_from_caption = ["𝚂𝚝𝚞𝚋𝚋𝚘𝚛𝚗", "{KUNAL}", "Kunal", "KUNAL❤️", "Mr_Cracker", "The_One", "The One", "Mr Cracker", "𝐑𝐄𝐗𝐎𝐃𝐀𝐒 🇮🇳", "@RolexEmpire", "Ƭʜᴇ-Ꭷɴᴇ  ✿" ]  # Add the words you want to remove from the caption
+        words_to_remove_from_caption = words_to_remove_from_filename  # Add the words you want to remove from the caption
         caption = msg.caption if msg.caption else ""
         for word in words_to_remove_from_caption:
             caption = caption.replace(word, "ʟʊʍɨռǟռȶ")
