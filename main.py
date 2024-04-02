@@ -17,13 +17,13 @@ with open('config.json', 'r') as f:
 def getenv(var): 
     return os.environ.get(var) or DATA.get(var, None)
 
-bot_token = "6843762164:AAFbaxdFLB2xk71yiWDsEvgk20NsLRT_Lug" 
-api_hash = "f550d6179131c293d658f15f8c24f594" 
-api_id = 20299588
+bot_token = getenv("TOKEN") 
+api_hash = getenv("HASH") 
+api_id = getenv("ID")
 auth_users = 5374602611
 bot = Client("mybot", api_id=api_id, api_hash=api_hash, bot_token=bot_token)
 
-ss = "BQE1v0QAVpzdq-RTkmpUzsofrtPhLpeQ-HYW4_QOtUBriILXodEs8-biiGULXoLIwDBGVB9XX9nT16HBRFrVNNZD6RLca7skV2sklCQN3LRpOj56LLl5yuuvF7iCDjfQ8QDc-GZLQyPgGxdLKm8QBgo9aahGFyvXJ2LPWqK22fdEHGt461gznXu3IuVHGtlt-79KHCPu63pjZ54uotVmVbRdQRJn0M1uy2R5XWNYmEeYFCvnfl7tYaGJgQxjyq6wQVx_PhuyR3V08xvgWg6cjUtW_Gx5FEYRyj2vCUqp5h9p1rjBvKktAYcOKTPsP5UC37o6J2ZrLKtnk7WUk00OXIEq7pR_cgAAAAFAWe1zAA"
+ss = getenv("STRING")
 if ss is not None:
     acc = Client("myacc" ,api_id=api_id, api_hash=api_hash, session_string=ss)
     acc.start()
@@ -233,7 +233,7 @@ def handle_private(message: pyrogram.types.messages_and_media.message.Message, c
             modified_filename = modified_filename.replace(word, "")
 
         os.rename(file, modified_filename)
-	
+        
         # Remove specific words from the caption
         words_to_remove_from_caption = words_to_remove_from_filename  # Add the words you want to remove from the caption
         caption = msg.caption if msg.caption else ""
@@ -249,6 +249,10 @@ def handle_private(message: pyrogram.types.messages_and_media.message.Message, c
         elif "Photo" == msg_type:
             bot.send_photo(message.chat.id, modified_filename, thumb=thumb, caption=caption, reply_to_message_id=message.id, progress=progress, progress_args=[message, "up"])
         # Add more elif conditions for other message types here...
+        
+        # Introduce a 20-second pause for non-video types
+        if "Video" != msg_type:
+            time.sleep(20)
 
         # Cleanup
         if os.path.exists(file):  # Check if the original file exists before removal
@@ -261,7 +265,6 @@ def handle_private(message: pyrogram.types.messages_and_media.message.Message, c
     except pyrogram.errors.exceptions.bad_request_400.MessageEmpty:
         # Skip to the next iteration if the message is empty
         pass
-
 
 # get the type of message
 def get_message_type(msg: pyrogram.types.messages_and_media.message.Message):
