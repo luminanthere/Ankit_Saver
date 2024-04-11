@@ -31,10 +31,12 @@ else:
     acc = None
 
 # Define global variables
-running = True  # Flag to control main loop execution
-ADMIN_IDS = [5374602611, 6172276454]
 words_to_remove_from_filename = []
 given_thumbnail = "not_set"
+url_count = 0
+# Default replacements
+words_to_replace_in_caption = {}
+
 
 # download status
 def downstatus(statusfile, message):
@@ -73,36 +75,58 @@ def progress(current, total, message, type):
     with open(f'{message.id}{type}status.txt', "w") as fileup:
         fileup.write(f"{current * 100 / total:.1f}%")
 
-# Restart command
-@bot.on_message(filters.command(["restart"]))
-def restart(client, message):
-    if message.from_user.id in ADMIN_IDS:
-        global running
-        running = False
-        bot.send_message(message.chat.id, "Bot is restarting...🔁")
-        # Restart bot here
-        time.sleep(5)  # Simulating restart delay
-        running = True
-        bot.send_message(message.chat.id, "Bot is restarted successfully.👨🏻‍💻")
-    else:
-        bot.send_message(message.chat.id, "Only the admin can restart the bot.🕵🏼")
 
 # start command
 @bot.on_message(filters.command(["start"]))
 def send_start(client: pyrogram.client.Client, message: pyrogram.types.messages_and_media.message.Message):
     bot.send_message(message.chat.id, "Yes I am Active")
 
+@bot.on_message(filters.command(["replace"]))
+def replace_command_handler(client, message):
+    global words_to_replace_in_caption
+    try:
+        # Extract the replacement pairs from the command
+        replace_data = message.text.split("/replace ")[1]
+        # Split the replacement pairs by comma
+        replace_pairs = replace_data.split(',')
+        replace_dict = {}
+        for pair in replace_pairs:
+            # Split each pair by colon to separate key and value
+            key, value = pair.split(':')
+            # Remove leading/trailing whitespaces
+            key = key.strip()
+            value = value.strip()
+            # Add the pair to the replacement dictionary
+            replace_dict[key] = value
+        # Update the global words_to_replace_in_caption dictionary with the new replacement pairs
+        words_to_replace_in_caption.update(replace_dict)
+        # Inform the user about the successful update
+        bot.send_message(message.chat.id, "Replacement dictionary updated successfully.")
+    except:
+        bot.send_message(message.chat.id, "Invalid replace command syntax.")
+
+@bot.on_message(filters.command("remove"))
+def handle_remove_command(client: pyrogram.Client, message: pyrogram.types.Message):
+    global words_to_remove_from_filename
+    # Get the text after the command
+    text_after_command = message.text.split(maxsplit=1)[1].strip()
+    
+    # Check if text is empty
+    if not text_after_command:
+        bot.send_message(message.chat.id, "Please provide words to remove after the command.")
+        return
+    
+    # Update words to remove from filename
+    words_to_remove_from_filename = text_after_command.split(",")
+    words_to_remove_from_filename = [word.strip() for word in words_to_remove_from_filename]
+    
+    # Send a message indicating the set words
+    bot.send_message(message.chat.id, f"You have set these words to be removed from the filename and Caption: {', '.join(words_to_remove_from_filename)}")
+
 @bot.on_message(filters.text)
 def save(client: pyrogram.Client, message: pyrogram.types.Message):
-    global given_thumbnail, words_to_remove_from_filename
+    global given_thumbnail
     print(message.text)
-
-    # Check if text contains words to remove from filename
-    if message.text.startswith("[") and message.text.endswith("]"):
-        words_to_remove_from_filename = message.text[1:-1].split(",")
-        words_to_remove_from_filename = [word.strip() for word in words_to_remove_from_filename]
-        # Send a message indicating the set words
-        bot.send_message(message.chat.id, "You have set these words to be removed from the filename and Caption.")
 
     # joining chats
     if "https://t.me/+" in message.text or "https://t.me/joinchat/" in message.text:
@@ -196,7 +220,9 @@ def save(client: pyrogram.Client, message: pyrogram.types.Message):
         given_thumbnail = "not_set"
 
 def handle_private(message: pyrogram.types.messages_and_media.message.Message, chatid: int, msgid: int):
-    global given_thumbnail, words_to_remove_from_filename
+    global given_thumbnail, words_to_remove_from_filename, url_count
+    global words_to_replace_in_caption
+    
     try:
         msg: pyrogram.types.messages_and_media.message.Message = acc.get_messages(chatid, msgid)
         msg_type = get_message_type(msg)
@@ -234,12 +260,29 @@ def handle_private(message: pyrogram.types.messages_and_media.message.Message, c
 
         os.rename(file, modified_filename)
         
-        # Remove specific words from the caption
-        words_to_remove_from_caption = words_to_remove_from_filename  # Add the words you want to remove from the caption
+        # Replace specific words in the caption
         caption = msg.caption if msg.caption else ""
-        for word in words_to_remove_from_caption:
-            caption = caption.replace(word, "ʟʊʍɨռǟռȶ")
+        for word, replacement in words_to_replace_in_caption.items():
+            caption = caption.replace(word, replacement)
 
+        # Remove specific words from the caption
+        for word in words_to_remove_from_filename:
+            caption = caption.replace(word, "")
+
+        # Set URL count limit based on media type
+        if "Document" == msg_type or "Photo" == msg_type or "Audio" == msg_type:
+            url_limit = 10
+        elif "Video" == msg_type:
+            url_limit = 50
+
+        # Increment URL count
+        url_count += 1
+        # Check if URL count is divisible by the limit
+        if url_count % url_limit == 0:
+            # Initiate flood wait (5 minutes)
+            time.sleep(300)
+
+        # Send the media
         if "Document" == msg_type:
             bot.send_document(message.chat.id, modified_filename, thumb=thumb, caption=caption, reply_to_message_id=message.id, progress=progress, progress_args=[message, "up"])
         elif "Video" == msg_type:
@@ -249,10 +292,6 @@ def handle_private(message: pyrogram.types.messages_and_media.message.Message, c
         elif "Photo" == msg_type:
             bot.send_photo(message.chat.id, modified_filename, thumb=thumb, caption=caption, reply_to_message_id=message.id, progress=progress, progress_args=[message, "up"])
         # Add more elif conditions for other message types here...
-        
-        # Introduce a 20-second pause for non-video types
-        if "Video" != msg_type:
-            time.sleep(20)
 
         # Cleanup
         if os.path.exists(file):  # Check if the original file exists before removal
@@ -262,9 +301,11 @@ def handle_private(message: pyrogram.types.messages_and_media.message.Message, c
         if os.path.exists(f'{message.id}upstatus.txt'):
             os.remove(f'{message.id}upstatus.txt')
         bot.delete_messages(message.chat.id, [smsg.id])
+        
     except pyrogram.errors.exceptions.bad_request_400.MessageEmpty:
         # Skip to the next iteration if the message is empty
         pass
+
 
 # get the type of message
 def get_message_type(msg: pyrogram.types.messages_and_media.message.Message):
