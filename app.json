@@ -1,14 +1,8 @@
 {
     "name":"hardik24",
     "description":"Download videos from various websites using this telegram bot",
-    "repository":"https://github.com/Adrenalinators/TXTLeechBot",
+    "repository":"https://github.com/lakshaybajrang/Aditya-",
     "buildpacks":[
-        {
-            "url": "https://github.com/jonathanong/heroku-buildpack-ffmpeg-latest.git"
-        },
-        {
-            "url": "https://github.com/amivin/aria2-heroku.git"
-        },
         {
             "url": "heroku/python"
         }
