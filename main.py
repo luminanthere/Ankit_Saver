@@ -81,7 +81,7 @@ def progress(current, total, message, type):
 def send_start(client: pyrogram.client.Client, message: pyrogram.types.messages_and_media.message.Message):
     bot.send_message(message.chat.id, "Yes I am Active")
 
-@bot.on_message(filters.command(["replace"]))
+@bot.on_message(filters.command(["replace"]) & filters.chat(-1002115474889))
 def replace_command_handler(client, message):
     global words_to_replace_in_caption
     try:
@@ -105,7 +105,7 @@ def replace_command_handler(client, message):
     except:
         bot.send_message(message.chat.id, "Invalid replace command syntax.")
 
-@bot.on_message(filters.command("remove"))
+@bot.on_message(filters.command("remove") & filters.chat(-1002115474889))
 def handle_remove_command(client: pyrogram.Client, message: pyrogram.types.Message):
     global words_to_remove_from_filename
     # Get the text after the command
@@ -123,7 +123,7 @@ def handle_remove_command(client: pyrogram.Client, message: pyrogram.types.Messa
     # Send a message indicating the set words
     bot.send_message(message.chat.id, f"You have set these words to be removed from the filename and Caption: {', '.join(words_to_remove_from_filename)}")
 
-@bot.on_message(filters.text)
+@bot.on_message((filters.text) & filters.chat(-1002115474889))
 def save(client: pyrogram.Client, message: pyrogram.types.Message):
     global given_thumbnail
     print(message.text)
